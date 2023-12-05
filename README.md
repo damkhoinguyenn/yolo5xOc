@@ -1,6 +1,6 @@
 # yolo5xOc
  Yolov5(v6.2) with OcSort
 # env:
-pip install torch==2.0.0+cu118 torchvision==0.15.1+cu118 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cu118
+conda install pytorch==1.12.0 torchvision==0.13.0 torchaudio==0.12.0 cudatoolkit=11.6 -c pytorch -c conda-forge
 # run detect:
 python track.py --source handAndStand.mp4 --yolo-weights weights/bestStand.pt --save-txt --tracking-method ocsort
