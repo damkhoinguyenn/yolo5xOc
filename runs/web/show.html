@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Activity Recognition</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="column column-left">
+            <div id="labelDiv">Classroom Activity Recognition</div>
+
+            <div id="fileUploadDiv1">
+                <label for="fileInput" id="fileInputLabel">Select file</label>
+                <input type="file" id="fileInput" accept=".txt" />
+                <span id="fileName"></span>
+            </div>
+
+            <div id="fileUploadDiv2">
+                <label for="folderInput" id="folderInputLabel">Select Folder</label>
+                <input type="file" id="folderInput" webkitdirectory mozdirectory msdirectory odirectory directory
+                    multiple />
+            </div>
+
+            <div id="inputVideoLabel">Input video:</div>
+            <video id="video1" controls></video>
+
+            <div id="videoControlDiv">
+                <button id="playPauseButton">Play/Pause Videos</button>
+            </div>
+        </div>
+
+
+        <div class="column column-right">
+            <div class="video-label">Result:</div>
+            <video id="video2" controls></video>
+            <div class="select-container">
+                <select id="selectVideo2" onchange="showSelectedId('selectVideo2', 'frameVideo2')"> </select>
+                <div id="frameVideo2" class="id-frame"> </div>
+            </div>
+
+            <video id="video3" controls></video>
+            <div class="select-container">
+                <select id="selectVideo3" onchange="showSelectedId('selectVideo3', 'frameVideo3')"> </select>
+                <div id="frameVideo3" class="id-frame"> </div>
+            </div>
+        </div>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+
+</html>
