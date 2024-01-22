@@ -249,11 +249,11 @@ def run(
                             bbox_h = output[3] - output[1]
                             # Write MOT compliant results to file
                             with open(txt_path + '.txt', 'a') as f:
-                                # f.write(('%g ' * 11 + '\n') % (frame_idx + 1, cls, id, bbox_left,  # MOT format
-                                #                                bbox_top, bbox_w, bbox_h, -1, -1, -1, -1))
+                                f.write(('%g ' * 11 + '\n') % (frame_idx + 1, cls, id, bbox_left,  # MOT format
+                                                               bbox_top, bbox_w, bbox_h, -1, -1, -1, -1))
                                 # f.write('%g %g %g %g %g %g -1 -1 -1 -1\n' % (
                                 # frame_idx + 1, id, bbox_left, bbox_top, bbox_w, bbox_h))
-                                f.write('%g %g\n' % (frame_idx + 1, id))
+                                # f.write('%g %g\n' % (frame_idx + 1, id))
 
                         if save_vid:  # Add bbox to image
                             c = int(cls)  # integer class
@@ -314,7 +314,7 @@ def run(
             #                              color, thickness=3)
 
             if save_img:
-                img_filename = f'frame_{frame_idx + 1}.jpg'
+                img_filename = f'{frame_idx + 1}.jpg'
                 img_save_path = os.path.join(save_img_path, img_filename)
                 cv2.imwrite(img_save_path, im0)
 

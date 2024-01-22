@@ -1,0 +1,6 @@
+train: C:/Users/dammi/Documents/OcxYolo5/yolov5/dataset/train
+val: C:/Users/dammi/Documents/OcxYolo5/yolov5/dataset/val
+
+nc: 2
+
+names: ["u_p", "p"]
