@@ -243,17 +243,10 @@ def run(
                 vid_writer[i].write(im0)
 
             if save_img:
-                # Generate a unique filename for each frame
                 frame_filename = f"{frame_index}.jpg"
                 full_path = os.path.join(save_img_path, frame_filename)
                 cv2.imwrite(full_path, im0)
-
-                print("Saving frame to:", full_path)
                 frame_index += 1  # Increment the frame index
-
-            if save_vid:
-                for writer in vid_writer:
-                    writer.release() if writer else None
 
         # Print time (inference-only)
         LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
