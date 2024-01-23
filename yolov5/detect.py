@@ -60,7 +60,8 @@ def run(
         device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         view_img=False,  # show results
         save_txt=False,  # save results to *.txt
-        save_img=False, # save results to images
+        save_vid=False,  # save video tracking results
+        save_img=False,  # save results to *.jpg
         save_conf=False,  # save confidences in --save-txt labels
         save_crop=False,  # save cropped prediction boxes
         nosave=False,  # do not save images/videos
@@ -105,7 +106,11 @@ def run(
     else:
         dataset = LoadImages(source, img_size=imgsz, stride=stride, auto=pt)
         bs = 1  # batch_size
-    vid_path, vid_writer = [None] * bs, [None] * bs
+    vid_path, vid_writer = [None] * bs, [None] * bs  # Initialize video path and writer
+    save_img_path = str(save_dir / 'images')
+    if save_img and not os.path.exists(save_img_path):
+        os.makedirs(save_img_path)
+
     # frame_idx = 0  # Initialize frame index
     merged_text = ""  # Initialize an empty string to hold all results
 
@@ -116,6 +121,9 @@ def run(
     # Run inference
     model.warmup(imgsz=(1 if pt else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], [0.0, 0.0, 0.0]
+
+    frame_index = 1  # Initialize a frame counter
+
     for path, im, im0s, vid_cap, s in dataset:
 
         # frame_idx += 1  # Increment frame index for each image/frame
@@ -206,23 +214,47 @@ def run(
                 cv2.waitKey(1)  # 1 millisecond
 
             # Save results (image with detections)
+            # if save_img:
+            #     if dataset.mode == 'image':
+            #         cv2.imwrite(save_path, im0)
+            #     else:  # 'video' or 'stream'
+            #         if vid_path[i] != save_path:  # new video
+            #             vid_path[i] = save_path
+            #             if isinstance(vid_writer[i], cv2.VideoWriter):
+            #                 vid_writer[i].release()  # release previous video writer
+            #             if vid_cap:  # video
+            #                 fps = vid_cap.get(cv2.CAP_PROP_FPS)
+            #                 w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            #                 h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            #             else:  # stream
+            #                 fps, w, h = 30, im0.shape[1], im0.shape[0]
+            #             save_path = str(Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
+            #             vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+            #         vid_writer[i].write(im0)
+
+            if save_vid:
+                if vid_path[i] != save_path:  # new video
+                    vid_path[i] = save_path
+                    if isinstance(vid_writer[i], cv2.VideoWriter):
+                        vid_writer[i].release()  # release previous video writer
+                    fps, w, h = 30, im0.shape[1], im0.shape[0]  # Define FPS and resolution
+                    save_path_vid = str(Path(save_path).with_suffix('.mp4'))
+                    vid_writer[i] = cv2.VideoWriter(save_path_vid, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+                vid_writer[i].write(im0)
+
             if save_img:
-                if dataset.mode == 'image':
-                    cv2.imwrite(save_path, im0)
-                else:  # 'video' or 'stream'
-                    if vid_path[i] != save_path:  # new video
-                        vid_path[i] = save_path
-                        if isinstance(vid_writer[i], cv2.VideoWriter):
-                            vid_writer[i].release()  # release previous video writer
-                        if vid_cap:  # video
-                            fps = vid_cap.get(cv2.CAP_PROP_FPS)
-                            w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                            h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                        else:  # stream
-                            fps, w, h = 30, im0.shape[1], im0.shape[0]
-                        save_path = str(Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
-                        vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
-                    vid_writer[i].write(im0)
+                # Generate a unique filename for each frame
+                frame_filename = f"{frame_index}.jpg"
+                full_path = os.path.join(save_img_path, frame_filename)
+                cv2.imwrite(full_path, im0)
+
+                print("Saving frame to:", full_path)
+                frame_index += 1  # Increment the frame index
+
+            if save_vid:
+                for writer in vid_writer:
+                    writer.release() if writer else None
+
         # Print time (inference-only)
         LOGGER.info(f'{s}Done. ({t3 - t2:.3f}s)')
 
@@ -252,10 +284,13 @@ def parse_opt():
     parser.add_argument('--device', default='', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     parser.add_argument('--view-img', action='store_true', help='show results')
     parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
-    parser.add_argument('--save-img', action='store_true', default=True, help='save images with detections')
+    # parser.add_argument('--save-img', action='store_true', default=True, help='save images with detections')
     parser.add_argument('--save-conf', action='store_true', help='save confidences in --save-txt labels')
     parser.add_argument('--save-crop', action='store_true', help='save cropped prediction boxes')
     parser.add_argument('--nosave', action='store_true', help='do not save images/videos')
+    parser.add_argument('--save-vid', action='store_true', help='save video tracking results')
+    parser.add_argument('--save-img', action='store_true', help='save results to *.jpg')
+    # class 0 is person, 1 is bycicle, 2 is car... 79 is oven
     parser.add_argument('--classes', nargs='+', type=int, help='filter by class: --classes 0, or --classes 0 2 3')
     parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
     parser.add_argument('--augment', action='store_true', help='augmented inference')
