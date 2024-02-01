@@ -11,6 +11,9 @@ Usage:
     $ python path/to/train.py --data coco128.yaml --weights yolov5s.pt --img 640  # from pretrained (RECOMMENDED)
     $ python path/to/train.py --data coco128.yaml --weights '' --cfg yolov5s.yaml --img 640  # from scratch
 """
+import os
+# limit the number of cpus used by high performance libraries
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 import argparse
 import math
